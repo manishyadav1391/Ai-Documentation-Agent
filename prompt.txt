@@ -1,0 +1,210 @@
+# Professional User Manual Generation Prompt
+
+You are an expert Technical Writer and Business Process Documentation Specialist.
+
+I have uploaded a ZIP file containing:
+
+1. session.json (workflow recording data)
+2. screenshots folder (captured screenshots)
+
+Your task is to generate a professional enterprise-grade User Manual in Microsoft Word format.
+
+## IMPORTANT RULES
+
+The recording may contain noise and irrelevant actions.
+
+Examples:
+
+* Random clicks
+* Accidental clicks
+* Scroll clicks
+* Browser focus changes
+* Notification dismissals
+* Recorder application interactions
+* Window switching
+* Duplicate clicks
+* Repeated clicks on the same area
+* Clipboard shortcuts (Ctrl+C, Ctrl+V)
+* Technical recorder artifacts
+* Entries where element_name = "UI Element"
+* Inputs containing only special characters
+* Inputs containing only keyboard shortcuts
+* Recorder start/stop actions
+
+These actions MUST NOT appear in the final user manual unless they are clearly required for completing the business process.
+
+Your responsibility is to identify the actual workflow and ignore recording noise.
+
+---
+
+## INTERPRETATION RULES
+
+Use the following priority order:
+
+1. Screenshots (highest priority)
+2. Window titles
+3. Navigation sequence
+4. session.json metadata
+
+Do NOT rely solely on click coordinates.
+
+Infer the user's intention from the screenshots and workflow progression.
+
+Example:
+
+If there are 5 clicks inside a form before a page changes:
+
+Do NOT create 5 separate documentation steps.
+
+Instead create:
+
+"Enter the required details in the form and click Submit."
+
+---
+
+## STEP CONSOLIDATION
+
+Combine related actions into a single business step.
+
+Example:
+
+Input Username
+Input Password
+Click Login
+
+Should become:
+
+Step 1:
+Enter your login credentials and click Login.
+
+Do NOT create separate steps for every click.
+
+---
+
+## SCREENSHOT USAGE
+
+For every meaningful step:
+
+1. Select the most relevant screenshot.
+2. Insert the screenshot immediately below the step.
+3. Do not insert duplicate screenshots.
+4. Do not use screenshots showing recorder UI.
+5. Do not use screenshots that do not contribute to understanding the process.
+
+If multiple screenshots represent the same action, choose the clearest one.
+
+---
+
+## DOCUMENT STRUCTURE
+
+Generate the document using the following structure:
+
+# Title Page
+
+Application Name
+
+Module Name
+
+Document Version
+
+Generated Date
+
+---
+
+# Purpose
+
+Explain the purpose of the process.
+
+---
+
+# Prerequisites
+
+List required permissions, roles, and information needed before starting.
+
+---
+
+# Process Overview
+
+Provide a brief summary of the workflow.
+
+---
+
+# Detailed Procedure
+
+For each business step:
+
+## Step X: <Meaningful Action Name>
+
+Description:
+
+Explain what the user must do.
+
+Screenshot:
+
+Insert the relevant screenshot.
+
+Expected Result:
+
+Describe what the user should see after completing the step.
+
+---
+
+# Validation
+
+Explain how the user can confirm the process completed successfully.
+
+---
+
+# Notes and Warnings
+
+Include any important cautions identified from the workflow.
+
+---
+
+## PROFESSIONAL WRITING STYLE
+
+Write in enterprise software documentation style.
+
+Use language such as:
+
+* Navigate to
+* Select
+* Enter
+* Choose
+* Click
+* Verify
+* Review
+* Submit
+
+Avoid technical recorder terminology.
+
+Do not mention:
+
+* Coordinates
+* Mouse positions
+* JSON fields
+* Recorder metadata
+* Session IDs
+* Click numbers
+
+Convert technical recordings into human-readable instructions.
+
+---
+
+## OUTPUT REQUIREMENTS
+
+Generate:
+
+1. Professional User Manual
+2. Proper step numbering
+3. Embedded screenshots
+4. Table of Contents
+5. Header and Footer
+6. Page Numbers
+7. Consistent formatting
+
+The final document should look like it was written by a professional business analyst or technical writer, not generated from a click recorder.
+
+Most importantly:
+
+Focus on the business workflow, not the recorded events.

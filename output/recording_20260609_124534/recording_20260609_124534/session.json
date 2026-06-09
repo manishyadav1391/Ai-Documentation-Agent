@@ -1,0 +1,361 @@
+{
+  "application": "Documentation Bot - Recorder",
+  "steps": [
+    {
+      "step_no": 1,
+      "timestamp": "2026-06-09T12:45:36.829683",
+      "action_type": "click",
+      "window_title": "Documentation Bot - Recorder",
+      "screenshot": "screenshots\\001_click.png",
+      "metadata": {
+        "x": 1425,
+        "y": 291,
+        "button": "Button.left",
+        "element_name": "MPACS, MDCS & MFCS (Since 15-02-2023)",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 2,
+      "timestamp": "2026-06-09T12:45:41.124636",
+      "action_type": "window_change",
+      "window_title": "NCD - Login and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\002_window_change.png",
+      "metadata": {
+        "class_name": "Chrome_WidgetWin_1",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 3,
+      "timestamp": "2026-06-09T12:45:41.264354",
+      "action_type": "click",
+      "window_title": "NCD - Login and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\003_click.png",
+      "metadata": {
+        "x": 1025,
+        "y": 397,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 4,
+      "timestamp": "2026-06-09T12:45:42.759315",
+      "action_type": "input",
+      "window_title": "NCD - Login and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\004_input.png",
+      "metadata": {
+        "field_name": "Unknown Field",
+        "value": "v",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 5,
+      "timestamp": "2026-06-09T12:45:42.906787",
+      "action_type": "click",
+      "window_title": "NCD - Login and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\005_click.png",
+      "metadata": {
+        "x": 976,
+        "y": 651,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 6,
+      "timestamp": "2026-06-09T12:45:43.929244",
+      "action_type": "input",
+      "window_title": "NCD - Login and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\006_input.png",
+      "metadata": {
+        "field_name": "Unknown Field",
+        "value": "\u0016",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 7,
+      "timestamp": "2026-06-09T12:45:44.060939",
+      "action_type": "click",
+      "window_title": "NCD - Login and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\007_click.png",
+      "metadata": {
+        "x": 878,
+        "y": 488,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 8,
+      "timestamp": "2026-06-09T12:45:47.390867",
+      "action_type": "input",
+      "window_title": "NCD - Login and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\008_input.png",
+      "metadata": {
+        "field_name": "Unknown Field",
+        "value": "v",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 9,
+      "timestamp": "2026-06-09T12:45:47.538777",
+      "action_type": "click",
+      "window_title": "NCD - Login and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\009_click.png",
+      "metadata": {
+        "x": 1024,
+        "y": 567,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 10,
+      "timestamp": "2026-06-09T12:45:49.470426",
+      "action_type": "input",
+      "window_title": "NCD - Login and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\010_input.png",
+      "metadata": {
+        "field_name": "Unknown Field",
+        "value": "\u0016",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 11,
+      "timestamp": "2026-06-09T12:45:49.610540",
+      "action_type": "click",
+      "window_title": "NCD - Login and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\011_click.png",
+      "metadata": {
+        "x": 1032,
+        "y": 570,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 12,
+      "timestamp": "2026-06-09T12:45:53.939965",
+      "action_type": "input",
+      "window_title": "NCD - Login and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\012_input.png",
+      "metadata": {
+        "field_name": "Unknown Field",
+        "value": "25",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 13,
+      "timestamp": "2026-06-09T12:45:54.070856",
+      "action_type": "click",
+      "window_title": "NCD - Login and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\013_click.png",
+      "metadata": {
+        "x": 843,
+        "y": 621,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 14,
+      "timestamp": "2026-06-09T12:45:54.958786",
+      "action_type": "click",
+      "window_title": "NCD - Login and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\014_click.png",
+      "metadata": {
+        "x": 970,
+        "y": 667,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 15,
+      "timestamp": "2026-06-09T12:46:01.185633",
+      "action_type": "click",
+      "window_title": "Dashboard | NCD and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\015_click.png",
+      "metadata": {
+        "x": 231,
+        "y": 331,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 16,
+      "timestamp": "2026-06-09T12:46:02.530495",
+      "action_type": "click",
+      "window_title": "Dashboard | NCD and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\016_click.png",
+      "metadata": {
+        "x": 75,
+        "y": 364,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 17,
+      "timestamp": "2026-06-09T12:46:10.512782",
+      "action_type": "click",
+      "window_title": "List Users | NCD and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\017_click.png",
+      "metadata": {
+        "x": 1318,
+        "y": 98,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 18,
+      "timestamp": "2026-06-09T12:46:13.336111",
+      "action_type": "click",
+      "window_title": "List Users | NCD and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\018_click.png",
+      "metadata": {
+        "x": 1137,
+        "y": 880,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 19,
+      "timestamp": "2026-06-09T12:46:24.945433",
+      "action_type": "window_change",
+      "window_title": "Documentation Bot - Recorder",
+      "screenshot": "screenshots\\019_window_change.png",
+      "metadata": {
+        "class_name": "Qt6111QWindowIcon",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 20,
+      "timestamp": "2026-06-09T12:46:25.025677",
+      "action_type": "click",
+      "window_title": "Documentation Bot - Recorder",
+      "screenshot": "screenshots\\020_click.png",
+      "metadata": {
+        "x": 221,
+        "y": 564,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 21,
+      "timestamp": "2026-06-09T12:46:33.231382",
+      "action_type": "window_change",
+      "window_title": "List Users | NCD and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\021_window_change.png",
+      "metadata": {
+        "class_name": "Chrome_WidgetWin_1",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 22,
+      "timestamp": "2026-06-09T12:46:33.300115",
+      "action_type": "click",
+      "window_title": "List Users | NCD and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\022_click.png",
+      "metadata": {
+        "x": 212,
+        "y": 233,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 23,
+      "timestamp": "2026-06-09T12:46:34.560520",
+      "action_type": "click",
+      "window_title": "List Users | NCD and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\023_click.png",
+      "metadata": {
+        "x": 174,
+        "y": 371,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 24,
+      "timestamp": "2026-06-09T12:46:36.518793",
+      "action_type": "click",
+      "window_title": "List Users | NCD and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\024_click.png",
+      "metadata": {
+        "x": 169,
+        "y": 403,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 25,
+      "timestamp": "2026-06-09T12:46:39.610404",
+      "action_type": "click",
+      "window_title": "List Users | NCD and 10 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\025_click.png",
+      "metadata": {
+        "x": 1126,
+        "y": 875,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 26,
+      "timestamp": "2026-06-09T12:46:40.661929",
+      "action_type": "window_change",
+      "window_title": "Documentation Bot - Recorder",
+      "screenshot": "screenshots\\026_window_change.png",
+      "metadata": {
+        "class_name": "Qt6111QWindowIcon",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 27,
+      "timestamp": "2026-06-09T12:46:40.743677",
+      "action_type": "click",
+      "window_title": "Documentation Bot - Recorder",
+      "screenshot": "screenshots\\027_click.png",
+      "metadata": {
+        "x": 1347,
+        "y": 577,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    }
+  ]
+}

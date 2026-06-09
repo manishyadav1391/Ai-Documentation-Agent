@@ -1,0 +1,61 @@
+{
+  "application": "user_manual_bot using screen recoder - Antigravity IDE - 005_click.png",
+  "steps": [
+    {
+      "step_no": 3,
+      "timestamp": "2026-06-09T12:38:57.842880",
+      "action_type": "click",
+      "window_title": "user_manual_bot using screen recoder - Antigravity IDE - 005_click.png",
+      "screenshot": "screenshots\\003_click.png",
+      "metadata": {
+        "x": 135,
+        "y": 457,
+        "button": "Button.left",
+        "element_name": "Open in Integrated Terminal",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 3,
+      "timestamp": "2026-06-09T12:39:07.750089",
+      "action_type": "click",
+      "window_title": "user_manual_bot using screen recoder - Antigravity IDE - 002_click.png",
+      "screenshot": "screenshots\\002_click.png",
+      "metadata": {
+        "x": 157,
+        "y": 409,
+        "button": "Button.left",
+        "element_name": "C:\\doc_automation\\user_manual_bot using screen recoder\\sessions\\recording_20260609_123230\\screenshots\\002_click.png",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 4,
+      "timestamp": "2026-06-09T12:39:07.866695",
+      "action_type": "click",
+      "window_title": "New tab and 8 more pages - Personal - Microsoft\u200b Edge",
+      "screenshot": "screenshots\\004_click.png",
+      "metadata": {
+        "x": 1382,
+        "y": 645,
+        "button": "Button.left",
+        "element_name": "UI Element",
+        "url": ""
+      }
+    },
+    {
+      "step_no": 4,
+      "timestamp": "2026-06-09T12:39:07.868990",
+      "action_type": "click",
+      "window_title": "user_manual_bot using screen recoder - Antigravity IDE - 003_click.png",
+      "screenshot": "screenshots\\001_click.png",
+      "metadata": {
+        "x": 145,
+        "y": 344,
+        "button": "Button.left",
+        "element_name": "C:\\doc_automation\\user_manual_bot using screen recoder\\sessions",
+        "url": ""
+      }
+    }
+  ]
+}
