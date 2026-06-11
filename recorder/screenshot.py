@@ -3,6 +3,47 @@ from PIL import Image, ImageDraw, ImageFont
 import win32gui
 import time
 import logging
+import win32process
+import win32api
+import os
+import ctypes
+
+def is_browser_window(hwnd):
+    if not hwnd:
+        return False
+    try:
+        class_name = win32gui.GetClassName(hwnd)
+        _, pid = win32process.GetWindowThreadProcessId(hwnd)
+        handle = win32api.OpenProcess(0x1000, False, pid)  # PROCESS_QUERY_LIMITED_INFORMATION
+        exe_path = win32process.GetModuleFileNameEx(handle, 0)
+        win32api.CloseHandle(handle)
+        proc_name = os.path.basename(exe_path).lower()
+        
+        BROWSER_PROCESSES = {"chrome.exe", "msedge.exe", "firefox.exe", "brave.exe", "opera.exe", "arc.exe", "vivaldi.exe"}
+        return proc_name in BROWSER_PROCESSES or class_name in ("Chrome_WidgetWin_1", "MozillaWindowClass")
+    except Exception as e:
+        logging.debug(f"Error classifying browser for hwnd {hwnd}: {e}")
+        return False
+
+def get_browser_crop_height(hwnd):
+    try:
+        placement = win32gui.GetWindowPlacement(hwnd)
+        is_maximized = placement[1] == 3
+    except Exception:
+        is_maximized = False
+        
+    try:
+        dpi = ctypes.windll.user32.GetDpiForWindow(hwnd)
+        scale = dpi / 96.0
+    except Exception:
+        scale = 1.0
+        
+    base_height = 143
+    if is_maximized:
+        base_height -= 8
+        
+    return int(base_height * scale)
+
 
 def get_text_size(text, font, draw):
     if hasattr(draw, "textbbox"):
@@ -58,6 +99,8 @@ def capture_screenshot(filename, click_coords=None, highlight_rect=None, step_no
         # 3. Determine active window rect for cropping and overlay positioning
         hwnd = win32gui.GetForegroundWindow()
         window_rect = None
+        is_browser = False
+        crop_height = 0
         if hwnd:
             try:
                 left, top, right, bottom = win32gui.GetWindowRect(hwnd)
@@ -68,6 +111,10 @@ def capture_screenshot(filename, click_coords=None, highlight_rect=None, step_no
                 bottom = min(screenshot.height, bottom)
                 if right > left and bottom > top:
                     window_rect = (left, top, right, bottom)
+                
+                is_browser = is_browser_window(hwnd)
+                if is_browser:
+                    crop_height = get_browser_crop_height(hwnd)
             except Exception as w_err:
                 logging.debug(f"Could not get window rect for hwnd {hwnd}: {w_err}")
 
@@ -121,7 +168,7 @@ def capture_screenshot(filename, click_coords=None, highlight_rect=None, step_no
             
             # Position the card at the top-left of the target capture area
             card_x = (window_rect[0] if window_rect else 0) + 15
-            card_y = (window_rect[1] if window_rect else 0) + 15
+            card_y = (window_rect[1] if window_rect else 0) + crop_height + 15
             
             # Draw semi-transparent dark gray card background (opacity 220/255)
             if hasattr(draw_overlay, "rounded_rectangle"):
@@ -141,7 +188,15 @@ def capture_screenshot(filename, click_coords=None, highlight_rect=None, step_no
         
         # 9. Crop image to foreground window rect
         if window_rect:
-            screenshot = screenshot.crop(window_rect)
+            crop_left = window_rect[0]
+            crop_top = min(window_rect[1] + crop_height, window_rect[3] - 1)
+            crop_right = window_rect[2]
+            crop_bottom = window_rect[3]
+            
+            if crop_right > crop_left and crop_bottom > crop_top:
+                screenshot = screenshot.crop((crop_left, crop_top, crop_right, crop_bottom))
+            else:
+                screenshot = screenshot.crop(window_rect)
             
         screenshot.save(filename)
         logging.info(f"Saved highlighted and cropped active window screenshot to {filename}")

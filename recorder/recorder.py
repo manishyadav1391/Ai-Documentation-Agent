@@ -85,6 +85,9 @@ class Recorder:
         self.queue = queue.Queue()
         self.worker_thread = None
 
+   
+        
+
     def start(self):
         if self.is_recording:
             return
@@ -323,6 +326,8 @@ class Recorder:
         
         self.steps.append(step)
         self._emit_step_signal()
+
+
 
     def _handle_input(self, field_name, value, is_sensitive, ts):
         # 1. Check window change (internal tracking only, Issue #3)

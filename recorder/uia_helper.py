@@ -92,7 +92,6 @@ def call_com(interface_ptr, index, prototype, *args):
         func = prototype(method_ptr)
         return func(interface_ptr, *args)
     except Exception as e:
-        import logging
         logging.debug(f"Error in call_com for index {index}: {e}")
         return -1
 
@@ -323,7 +322,6 @@ def get_focused_element_info():
                 "is_password": is_pw
             }
     except Exception as e:
-        import logging
         logging.error(f"Error in get_focused_element_info: {e}")
     finally:
         if uia_ptr.value:
@@ -418,7 +416,6 @@ def get_browser_url(hwnd):
             return url
             
     except Exception as e:
-        import logging
         logging.error(f"Error in get_browser_url: {e}")
     finally:
         if uia_ptr.value:
