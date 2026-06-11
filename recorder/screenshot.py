@@ -129,7 +129,7 @@ def capture_screenshot(filename, click_coords=None, highlight_rect=None, step_no
         #     width=8
         # )
 
-        drawn = True
+        drawn = False
         
         # 5. Draw bounding rectangle of UI element with semi-transparent fill
         if highlight_rect:

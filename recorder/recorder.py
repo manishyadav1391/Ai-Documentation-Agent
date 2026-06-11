@@ -358,7 +358,10 @@ class Recorder:
             logging.info(f"Middle click: attempting full page capture of URL: {url}")
             try:
                 from .full_page_capture import capture_full_page
-                capture_full_page(url, filepath)
+                capture_full_page(
+                    win_info["hwnd"],
+                    filepath
+                )
                 captured_full = True
                 logging.info(f"Saved full page screenshot to {filepath}")
             except Exception as e:
