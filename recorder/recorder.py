@@ -173,12 +173,16 @@ class Recorder:
         if not self.is_recording:
             return
         
-        # Issue #9: Only record left clicks
-        if pressed and button == pynput_mouse.Button.left:
-            logging.info(f"Click detected at ({x}, {y}) with button {button}")
-            # Flush typed text synchronously so that it is queued before this click event
-            self.keyboard_tracker.flush()
-            self.queue.put(("click", (x, y, button, datetime.now())))
+        if pressed:
+            if button == pynput_mouse.Button.left:
+                logging.info(f"Click detected at ({x}, {y}) with button {button}")
+                # Flush typed text synchronously so that it is queued before this click event
+                self.keyboard_tracker.flush()
+                self.queue.put(("click", (x, y, button, datetime.now())))
+            elif button == pynput_mouse.Button.middle:
+                logging.info(f"Middle click detected at ({x}, {y}) with button {button}")
+                self.keyboard_tracker.flush()
+                self.queue.put(("middle_click", (x, y, button, datetime.now())))
 
     def _on_input(self, field_name, value, is_sensitive):
         if not self.is_recording:
@@ -206,6 +210,9 @@ class Recorder:
                 elif event_type == "click":
                     x, y, button, ts = data
                     self._handle_click(x, y, button, ts)
+                elif event_type == "middle_click":
+                    x, y, button, ts = data
+                    self._handle_middle_click(x, y, button, ts)
                 elif event_type == "input":
                     field_name, value, is_sensitive, ts = data
                     self._handle_input(field_name, value, is_sensitive, ts)
@@ -327,7 +334,70 @@ class Recorder:
         self.steps.append(step)
         self._emit_step_signal()
 
-
+    def _handle_middle_click(self, x, y, button, ts):
+        # 1. Check window change
+        self._check_window_change()
+        
+        # 2. Get active window info
+        win_info = get_active_window_info()
+        title = win_info.get("title", "Unknown")
+        
+        # Issue #1: Skip clicks in the recorder's own window
+        if title in IGNORED_WINDOWS:
+            return
+            
+        url = win_info.get("url", "")
+        window_type = win_info.get("window_type", "")
+        
+        self.step_counter += 1
+        filename = f"{self.step_counter:03d}_fullpage.png"
+        filepath = os.path.join(self.screenshots_path, filename)
+        
+        captured_full = False
+        if window_type == "browser" and url:
+            logging.info(f"Middle click: attempting full page capture of URL: {url}")
+            try:
+                from .full_page_capture import capture_full_page
+                capture_full_page(url, filepath)
+                captured_full = True
+                logging.info(f"Saved full page screenshot to {filepath}")
+            except Exception as e:
+                logging.error(f"Failed to capture full page using Selenium: {e}. Falling back to active window screenshot.")
+                
+        if not captured_full:
+            # Fallback to standard window crop screenshot
+            logging.info(f"Middle click: capturing standard screenshot for fallback")
+            capture_screenshot(
+                filepath,
+                click_coords=(x, y),
+                step_no=self.step_counter,
+                action_label="Middle Click Screenshot"
+            )
+            
+        # Log action step
+        metadata = {
+            "x": x,
+            "y": y,
+            "button": str(button),
+            "window_type": window_type,
+            "url": url,
+            "full_page": captured_full
+        }
+        
+        business_action = "Capture Full Page" if captured_full else "Middle Click Screenshot"
+        
+        step = ActionStep(
+            step_no=self.step_counter,
+            timestamp=ts.isoformat(),
+            action_type="middle_click",
+            window_title=title,
+            screenshot=os.path.join("screenshots", filename),
+            metadata=metadata,
+            business_action=business_action
+        )
+        
+        self.steps.append(step)
+        self._emit_step_signal()
 
     def _handle_input(self, field_name, value, is_sensitive, ts):
         # 1. Check window change (internal tracking only, Issue #3)
@@ -408,6 +478,8 @@ class Recorder:
                 desc = f"{latest_step.action_type.capitalize()}"
                 if latest_step.action_type == "click":
                     desc += f" on {latest_step.metadata.get('element_name')}"
+                elif latest_step.action_type == "middle_click":
+                    desc = "Full Page Capture" if latest_step.metadata.get("full_page") else "Middle Click Screenshot"
                 elif latest_step.action_type == "input":
                     desc += f" in {latest_step.metadata.get('field_name')}"
                 self.step_signal.emit(self.step_counter, desc)

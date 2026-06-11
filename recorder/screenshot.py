@@ -153,34 +153,34 @@ def capture_screenshot(filename, click_coords=None, highlight_rect=None, step_no
             # Draw solid inner dot
             draw_overlay.ellipse([x - 2, y - 2, x + 2, y + 2], fill=(255, 0, 0, 255))
             
-        # 7. Draw step number and action overlay card
-        if step_no is not None:
-            font_step, font_action = load_fonts()
-            step_text = f"STEP {step_no}"
-            action_text = action_label if action_label else ""
-            
-            # Determine card width and height dynamically based on text
-            step_w, step_h = get_text_size(step_text, font_step, draw_overlay)
-            action_w, action_h = get_text_size(action_text, font_action, draw_overlay) if action_text else (0, 0)
-            
-            box_w = max(step_w, action_w) + 24
-            box_h = step_h + action_h + 20 if action_text else step_h + 16
-            
-            # Position the card at the top-left of the target capture area
-            card_x = (window_rect[0] if window_rect else 0) + 15
-            card_y = (window_rect[1] if window_rect else 0) + crop_height + 15
-            
-            # Draw semi-transparent dark gray card background (opacity 220/255)
-            if hasattr(draw_overlay, "rounded_rectangle"):
-                draw_overlay.rounded_rectangle([card_x, card_y, card_x + box_w, card_y + box_h], radius=6, fill=(30, 30, 30, 220))
-            else:
-                draw_overlay.rectangle([card_x, card_y, card_x + box_w, card_y + box_h], fill=(30, 30, 30, 220))
-                
-            # Draw Step text (Cyan)
-            draw_overlay.text((card_x + 12, card_y + 8), step_text, font=font_step, fill=(0, 220, 255, 255))
-            # Draw Action text if available (White)
-            if action_text:
-                draw_overlay.text((card_x + 12, card_y + 8 + step_h + 4), action_text, font=font_action, fill=(255, 255, 255, 255))
+        # 7. Draw step number and action overlay card (Removed as requested)
+        # if step_no is not None:
+        #     font_step, font_action = load_fonts()
+        #     step_text = f"STEP {step_no}"
+        #     action_text = action_label if action_label else ""
+        #     
+        #     # Determine card width and height dynamically based on text
+        #     step_w, step_h = get_text_size(step_text, font_step, draw_overlay)
+        #     action_w, action_h = get_text_size(action_text, font_action, draw_overlay) if action_text else (0, 0)
+        #     
+        #     box_w = max(step_w, action_w) + 24
+        #     box_h = step_h + action_h + 20 if action_text else step_h + 16
+        #     
+        #     # Position the card at the top-left of the target capture area
+        #     card_x = (window_rect[0] if window_rect else 0) + 15
+        #     card_y = (window_rect[1] if window_rect else 0) + crop_height + 15
+        #     
+        #     # Draw semi-transparent dark gray card background (opacity 220/255)
+        #     if hasattr(draw_overlay, "rounded_rectangle"):
+        #         draw_overlay.rounded_rectangle([card_x, card_y, card_x + box_w, card_y + box_h], radius=6, fill=(30, 30, 30, 220))
+        #     else:
+        #         draw_overlay.rectangle([card_x, card_y, card_x + box_w, card_y + box_h], fill=(30, 30, 30, 220))
+        #         
+        #     # Draw Step text (Cyan)
+        #     draw_overlay.text((card_x + 12, card_y + 8), step_text, font=font_step, fill=(0, 220, 255, 255))
+        #     # Draw Action text if available (White)
+        #     if action_text:
+        #         draw_overlay.text((card_x + 12, card_y + 8 + step_h + 4), action_text, font=font_action, fill=(255, 255, 255, 255))
 
         # 8. Blend the overlay onto the screenshot and convert back to RGB
         screenshot_rgba = Image.alpha_composite(screenshot_rgba, overlay)
