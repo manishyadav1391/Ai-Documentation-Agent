@@ -1,0 +1,403 @@
+# Recorder Quality Improvements — All 21 Issues
+
+Comprehensive plan to eliminate noise from recordings and transform session.json into clean, AI-ready documentation.
+
+---
+
+## Proposed Changes
+
+### Sprint 1 — Critical Noise Filters (Issues #1–#5)
+
+These 5 changes are independent of each other and collectively remove ~80% of junk from session.json.
+
+---
+
+#### Issue #1: Ignore Recorder Window
+
+##### [MODIFY] [recorder.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/recorder.py)
+
+- Add `IGNORED_WINDOWS` list at module level containing `"Documentation Bot - Recorder"`.
+- In `_on_click`: after getting `win_info`, check if the current window title matches any ignored window → skip the event.
+- In `_check_window_change`: skip logging window_change steps if new window title is in the ignored list.
+
+```python
+IGNORED_WINDOWS = [
+    "Documentation Bot - Recorder",
+    "Documentation Bot",
+]
+```
+
+Check in `_handle_click`:
+```python
+win_info = get_active_window_info()
+if win_info.get("title", "") in IGNORED_WINDOWS:
+    self.step_counter -= 1  # rollback counter
+    return
+```
+
+---
+
+#### Issue #2: Click Filtering (meaningless clicks)
+
+##### [MODIFY] [recorder.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/recorder.py)
+
+- Add a `_should_skip_click` method that returns `True` when:
+  - `element_name == "UI Element"` **and** `highlight_rect is None` (blank area)
+  - The element is a taskbar item (`class_name` contains `"Shell_TrayWnd"`, `"TrayNotifyWnd"`, `"TaskListThumbnailWnd"`)
+  - The element is a scrollbar (`control_type == 50008` which is ScrollBar)
+- Call this method in `_handle_click` before incrementing `step_counter`.
+
+---
+
+#### Issue #3: Window Change Spam — Don't export
+
+##### [MODIFY] [recorder.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/recorder.py)
+
+- In `_check_window_change`: still track `self.last_hwnd` and `self.primary_app_name` internally, but **remove** the code that creates an `ActionStep` with `action_type="window_change"`, increments `step_counter`, takes a screenshot, and appends to `self.steps`.
+- This means window changes are tracked internally (for context) but never exported.
+
+---
+
+#### Issue #4: Ctrl+C / Ctrl+V / Ctrl+A control characters
+
+##### [MODIFY] [keyboard_tracker.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/keyboard_tracker.py)
+
+- In `_on_press`, when `key.char is not None`, check if `ord(key.char) < 32` (control character range `\x00–\x1f`). If so, **ignore** the keypress entirely.
+- This catches Ctrl+C (`\x03`), Ctrl+V (`\x16`), Ctrl+A (`\x01`), Ctrl+Z (`\x1a`), etc.
+
+```python
+if hasattr(key, 'char') and key.char is not None:
+    # Ignore control characters (Ctrl+C, Ctrl+V, Ctrl+A, etc.)
+    if ord(key.char) < 32:
+        return
+    ...
+```
+
+---
+
+#### Issue #5: Single Character Inputs
+
+##### [MODIFY] [keyboard_tracker.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/keyboard_tracker.py)
+
+- In `flush()`, after building `typed_text`, check `len(typed_text) < 2`. If so, clear buffer and return without calling the callback.
+- This prevents stray single-character events (e.g., pressing "v" after Ctrl+V) from becoming documentation steps.
+
+```python
+typed_text = "".join(self.buffer).strip()
+self.buffer = []
+
+if not typed_text or len(typed_text) < 2:
+    self.field_info = None
+    self.is_sensitive = False
+    return None
+```
+
+---
+
+### Sprint 2 — Quality Improvements (Issues #6–#10)
+
+---
+
+#### Issue #6: Screenshot Delay
+
+##### Already implemented ✅
+
+The current [screenshot.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/screenshot.py) already has `delay=0.8` (line 30) and `time.sleep(delay)` (line 43). **No change needed.**
+
+---
+
+#### Issue #7: Generic Element Names — Fallback Chain
+
+##### [MODIFY] [recorder.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/recorder.py)
+
+- Replace the current name resolution logic in `_handle_click` with a proper fallback chain:
+
+```python
+element_name = (
+    element_info.get("name")
+    or element_info.get("automation_id")
+    or element_info.get("class_name")
+    or CONTROL_TYPE_NAMES.get(element_info.get("control_type"), "")
+    or "UI Element"
+)
+```
+
+##### [MODIFY] [uia_helper.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/uia_helper.py)
+
+- Add `get_element_automation_id()` function (vtable offset 24 for `get_CurrentAutomationId`).
+- Include `automation_id` in the dict returned by `get_element_at()` and `get_focused_element_info()`.
+
+---
+
+#### Issue #8: Unknown Field Names
+
+##### [MODIFY] [keyboard_tracker.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/keyboard_tracker.py)
+
+- In `flush()`, improve the field_name fallback:
+
+```python
+field_name = (
+    self.field_info.get("name")
+    or self.field_info.get("automation_id")
+    or self.field_info.get("class_name")
+    or "Input Field"
+)
+```
+
+This mirrors the same fallback chain as Issue #7.
+
+---
+
+#### Issue #9: Right Click Recorded
+
+##### [MODIFY] [recorder.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/recorder.py)
+
+- In `_on_click`, add check: only queue event for `mouse.Button.left`.
+
+```python
+from pynput import mouse as pynput_mouse
+
+def _on_click(self, x, y, button, pressed):
+    if not self.is_recording:
+        return
+    if pressed and button == pynput_mouse.Button.left:
+        ...
+```
+
+---
+
+#### Issue #10: Empty Clicks Recorded
+
+##### Already covered by Issue #2 ✅
+
+The `_should_skip_click` method from Issue #2 handles this case: when `element_name == "UI Element"` and `highlight_rect is None`, the click is skipped.
+
+---
+
+### Sprint 2 continued — Duplicate Click Filter (Issue #11)
+
+#### Issue #11: Duplicate Clicks
+
+##### [MODIFY] [recorder.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/recorder.py)
+
+- Track `self.last_click_info = {"element": None, "window": None, "time": None}`.
+- In `_handle_click`, after resolving element_name, check if same element + same window within 1.0 second → skip.
+
+```python
+import time as time_mod
+
+now = time_mod.time()
+click_key = (element_name, win_info.get("hwnd"))
+if (self.last_click_info.get("key") == click_key and
+    now - self.last_click_info.get("time", 0) < 1.0):
+    return  # duplicate click, skip
+self.last_click_info = {"key": click_key, "time": now}
+```
+
+---
+
+### Sprint 3 — Metadata Enhancements (Issues #12–#15)
+
+---
+
+#### Issue #12: Descriptive Screenshot Names
+
+##### Already implemented ✅
+
+Current code already generates names like `001_click_login_button.png` and `002_input_username.png` using `sanitize_filename()` (lines 200, 204, 245, 249 in recorder.py). **No change needed.**
+
+---
+
+#### Issue #13: Better Control Types
+
+##### [MODIFY] [uia_helper.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/uia_helper.py)
+
+- Add a `CONTROL_TYPE_NAMES` mapping dict from UIA numeric IDs to human-readable names:
+
+```python
+CONTROL_TYPE_NAMES = {
+    50000: "Button",
+    50001: "Calendar",
+    50002: "CheckBox",
+    50003: "ComboBox",
+    50004: "Edit",
+    50005: "Hyperlink",
+    50006: "Image",
+    50007: "ListItem",
+    50008: "List",
+    50009: "Menu",
+    50010: "MenuBar",
+    50011: "MenuItem",
+    50012: "ProgressBar",
+    50013: "RadioButton",
+    50014: "ScrollBar",
+    50015: "Slider",
+    50016: "Spinner",
+    50017: "StatusBar",
+    50018: "Tab",
+    50019: "TabItem",
+    50020: "Text",
+    50021: "ToolBar",
+    50022: "ToolTip",
+    50023: "Tree",
+    50024: "TreeItem",
+    50025: "Custom",
+    50026: "Group",
+    50027: "Thumb",
+    50028: "DataGrid",
+    50029: "DataItem",
+    50030: "Document",
+    50031: "SplitButton",
+    50032: "Window",
+    50033: "Pane",
+    50034: "Header",
+    50035: "HeaderItem",
+    50036: "Table",
+    50037: "TitleBar",
+    50038: "Separator",
+}
+```
+
+- In `get_element_at()` and `get_focused_element_info()`, add `"control_type_name"` to the returned dict:
+
+```python
+"control_type_name": CONTROL_TYPE_NAMES.get(ctype, f"Control_{ctype}")
+```
+
+- In `recorder.py`, include `control_type_name` in click metadata.
+
+---
+
+#### Issue #14: Window Classification
+
+##### [MODIFY] [window_tracker.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/window_tracker.py)
+
+- Add `window_type` classification to `get_active_window_info()`:
+
+```python
+BROWSER_PROCESSES = {"chrome.exe", "msedge.exe", "firefox.exe", "brave.exe", "opera.exe", "arc.exe", "vivaldi.exe"}
+OFFICE_PROCESSES = {"excel.exe", "winword.exe", "powerpnt.exe", "outlook.exe", "onenote.exe"}
+
+def classify_window(proc_name, class_name):
+    if proc_name in BROWSER_PROCESSES:
+        return "browser"
+    if proc_name in OFFICE_PROCESSES:
+        return "office"
+    if proc_name == "explorer.exe":
+        return "file_explorer"
+    if class_name == "ConsoleWindowClass":
+        return "terminal"
+    return "desktop_app"
+```
+
+- Include `"window_type"` and `"process_name"` in the returned dict.
+
+---
+
+#### Issue #15: Application Name Detection
+
+##### [MODIFY] [recorder.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/recorder.py)
+
+- In the `stop()` method, instead of using the first window title as `app_name`, use the **most frequent** window title (excluding ignored windows):
+
+```python
+from collections import Counter
+
+if self.steps:
+    titles = [s.window_title for s in self.steps
+              if s.window_title not in IGNORED_WINDOWS]
+    if titles:
+        app_name = Counter(titles).most_common(1)[0][0]
+```
+
+---
+
+### Sprint 4 — Workflow Cleaner (Issue #21)
+
+---
+
+#### Issue #21: Workflow Cleaner
+
+##### [NEW] [workflow_cleaner.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/workflow_cleaner.py)
+
+A post-processing module that groups raw steps into logical workflow steps:
+
+- **Group sequential input+click pairs**: e.g., "Type username → Type password → Click Login" → Single step: "Enter credentials and click Login"
+- **Merge related clicks**: e.g., "Click dropdown → Click option" → "Select option from dropdown"
+- **Generate clean summary**: Each grouped step gets a human-readable `business_action` description.
+
+```python
+class WorkflowCleaner:
+    def __init__(self, steps):
+        self.raw_steps = steps
+        self.cleaned_steps = []
+
+    def clean(self):
+        """Groups and simplifies raw steps into logical workflow steps."""
+        ...
+        return self.cleaned_steps
+```
+
+##### [MODIFY] [exporter.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/exporter.py)
+
+- In `save_session()`, add a `"cleaned_steps"` key alongside the raw `"steps"` in session.json.
+- Import and run `WorkflowCleaner` on the steps before saving.
+
+---
+
+### Future Enhancements (Issues #16–#20) — Not in scope
+
+Issues #16–#20 (step overlay, action overlay, active-window-only screenshots, duplicate screenshot detection, screenshot highlight improvements) are already partially implemented or are deferred to a future phase. Specifically:
+
+| Issue | Status |
+|-------|--------|
+| #16 Step overlay | ✅ Already implemented in screenshot.py |
+| #17 Action label overlay | ✅ Already implemented in screenshot.py |
+| #18 Active window only | ✅ Already implemented (window_rect crop) |
+| #19 Duplicate screenshot detection | Deferred — low priority |
+| #20 Screenshot highlight improvements | ✅ Semi-transparent fill already implemented |
+
+---
+
+## Summary of Files Changed
+
+| File | Issues Addressed |
+|------|-----------------|
+| [recorder.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/recorder.py) | #1, #2, #3, #7, #9, #10, #11, #15 |
+| [keyboard_tracker.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/keyboard_tracker.py) | #4, #5, #8 |
+| [uia_helper.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/uia_helper.py) | #7, #13 |
+| [window_tracker.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/window_tracker.py) | #14 |
+| [exporter.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/exporter.py) | #21 |
+| [workflow_cleaner.py](file:///c:/doc_automation/user_manual_bot%20using%20screen%20recoder/recorder/workflow_cleaner.py) (NEW) | #21 |
+
+---
+
+## Open Questions
+
+> [!IMPORTANT]
+> **Issue #5 — Minimum input length**: I'm proposing a threshold of **2 characters** (ignore single chars). Should this be higher (e.g., 3)?
+
+> [!IMPORTANT]
+> **Issue #11 — Dedup time window**: I'm proposing **1.0 second** for duplicate click detection. Is this reasonable, or should it be shorter/longer?
+
+> [!IMPORTANT]
+> **Issue #21 — Workflow Cleaner scope**: Should the workflow cleaner be a simple rule-based grouper for Sprint 4, or do you want it to be AI-powered (calling an LLM to summarize step groups)? I'll implement rule-based first and it can be extended later.
+
+---
+
+## Verification Plan
+
+### Manual Verification
+1. Run the app (`python app.py`), perform a typical recording session.
+2. Open `session.json` and verify:
+   - No "Documentation Bot - Recorder" window events
+   - No right-click steps
+   - No control character inputs (`\x16`, `\x03`, etc.)
+   - No single-character input steps
+   - No `window_change` action types
+   - No blank-area clicks
+   - No duplicate consecutive clicks
+   - Control types shown as human-readable names
+   - `window_type` field present
+   - App name uses most-frequent title
+3. Verify screenshots still capture correctly with delay and overlays.

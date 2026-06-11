@@ -37,15 +37,22 @@ class KeyboardTracker:
         typed_text = "".join(self.buffer).strip()
         self.buffer = []
         
-        if not typed_text:
+        # Issue #5: Ignore single-character inputs (stray chars after Ctrl+V, etc.)
+        if not typed_text or len(typed_text) < 2:
             self.field_info = None
             self.is_sensitive = False
             return None
         
-        field_name = "Unknown Field"
+        # Issue #8: Improved field name fallback chain
+        field_name = "Input Field"
         is_pw = self.is_sensitive
         if self.field_info:
-            field_name = self.field_info.get("name") or self.field_info.get("class_name") or "Input Field"
+            field_name = (
+                self.field_info.get("name")
+                or self.field_info.get("automation_id")
+                or self.field_info.get("class_name")
+                or "Input Field"
+            )
             if self.field_info.get("is_password"):
                 is_pw = True
         
@@ -70,6 +77,10 @@ class KeyboardTracker:
 
             # Check if it's a character
             if hasattr(key, 'char') and key.char is not None:
+                # Issue #4: Ignore control characters (Ctrl+C, Ctrl+V, Ctrl+A, etc.)
+                if ord(key.char) < 32:
+                    return
+                
                 # If buffer is empty, capture focused element info
                 if not self.buffer:
                     self._capture_focus()

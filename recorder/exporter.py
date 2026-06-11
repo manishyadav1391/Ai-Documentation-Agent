@@ -4,6 +4,7 @@ import zipfile
 import shutil
 import logging
 from datetime import datetime
+from .workflow_cleaner import clean_workflow
 
 class Exporter:
     def __init__(self, base_dir="."):
@@ -39,9 +40,13 @@ class Exporter:
             os.makedirs(session_path, exist_ok=True)
 
         # 1. Format and save steps to session.json
+        # Issue #21: Run workflow cleaner to produce grouped steps
+        cleaned_steps = clean_workflow(steps)
+        
         session_data = {
             "application": app_name,
-            "steps": steps
+            "steps": steps,
+            "cleaned_steps": cleaned_steps
         }
         
         session_json_path = os.path.join(session_path, "session.json")

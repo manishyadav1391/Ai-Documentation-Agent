@@ -2,6 +2,50 @@ import ctypes
 from ctypes import wintypes
 import uuid
 import re
+import logging
+
+# Human-readable UIA Control Type names (Issue #13)
+CONTROL_TYPE_NAMES = {
+    50000: "Button",
+    50001: "Calendar",
+    50002: "CheckBox",
+    50003: "ComboBox",
+    50004: "Edit",
+    50005: "Hyperlink",
+    50006: "Image",
+    50007: "ListItem",
+    50008: "List",
+    50009: "Menu",
+    50010: "MenuBar",
+    50011: "MenuItem",
+    50012: "ProgressBar",
+    50013: "RadioButton",
+    50014: "ScrollBar",
+    50015: "Slider",
+    50016: "Spinner",
+    50017: "StatusBar",
+    50018: "Tab",
+    50019: "TabItem",
+    50020: "Text",
+    50021: "ToolBar",
+    50022: "ToolTip",
+    50023: "Tree",
+    50024: "TreeItem",
+    50025: "Custom",
+    50026: "Group",
+    50027: "Thumb",
+    50028: "DataGrid",
+    50029: "DataItem",
+    50030: "Document",
+    50031: "SplitButton",
+    50032: "Window",
+    50033: "Pane",
+    50034: "Header",
+    50035: "HeaderItem",
+    50036: "Table",
+    50037: "TitleBar",
+    50038: "Separator",
+}
 
 # GUID definition
 class GUID(ctypes.Structure):
@@ -115,19 +159,74 @@ def is_element_password(element_ptr):
     return False
 
 def get_element_rect(element_ptr):
-    proto = ctypes.WINFUNCTYPE(HRESULT, ctypes.c_void_p, ctypes.POINTER(RECT))
-    rect = RECT()
-    hr = call_com(element_ptr, 37, proto, ctypes.byref(rect))
+
+    class UIA_RECT(ctypes.Structure):
+        _fields_ = [
+            ("left", ctypes.c_double),
+            ("top", ctypes.c_double),
+            ("right", ctypes.c_double),
+            ("bottom", ctypes.c_double)
+        ]
+
+    rect = UIA_RECT()
+
+    proto = ctypes.WINFUNCTYPE(
+        HRESULT,
+        ctypes.c_void_p,
+        ctypes.POINTER(UIA_RECT)
+    )
+
+    hr = call_com(
+        element_ptr,
+        37,
+        proto,
+        ctypes.byref(rect)
+    )
+
     if hr == 0:
-        return {
-            "left": int(rect.left),
-            "top": int(rect.top),
-            "right": int(rect.right),
-            "bottom": int(rect.bottom),
-            "width": int(rect.right - rect.left),
-            "height": int(rect.bottom - rect.top)
-        }
+
+        left = int(rect.left)
+        top = int(rect.top)
+        right = int(rect.right)
+        bottom = int(rect.bottom)
+
+        width = right - left
+        height = bottom - top
+
+        logging.info(
+            f"UIA RECT => "
+            f"L={left}, T={top}, "
+            f"R={right}, B={bottom}"
+        )
+
+        if (
+            width > 3 and
+            height > 3 and
+            width < 5000 and
+            height < 5000
+        ):
+            return {
+                "left": left,
+                "top": top,
+                "right": right,
+                "bottom": bottom,
+                "width": width,
+                "height": height
+            }
+
     return None
+
+def get_element_automation_id(element_ptr):
+    """Issue #7: Retrieve AutomationId for better element identification."""
+    proto = ctypes.WINFUNCTYPE(HRESULT, ctypes.c_void_p, ctypes.POINTER(ctypes.c_wchar_p))
+    name_ptr = ctypes.c_wchar_p()
+    # get_CurrentAutomationId: standard UIA offset 19, code offset = 19 + 10 = 29
+    hr = call_com(element_ptr, 29, proto, ctypes.byref(name_ptr))
+    if hr == 0 and name_ptr.value:
+        val = name_ptr.value
+        ctypes.windll.oleaut32.SysFreeString(ctypes.cast(name_ptr, ctypes.c_void_p))
+        return val
+    return ""
 
 # API Functions (Self-contained COM Apartments)
 def get_element_at(x, y):
@@ -148,10 +247,15 @@ def get_element_at(x, y):
         elem_ptr = ctypes.c_void_p()
         pt = POINT(x, y)
         hr_elem = call_com(uia_ptr, 7, proto, pt, ctypes.byref(elem_ptr))
+        logging.info(
+            f"ElementFromPoint HR={hr_elem} "
+            f"PTR={elem_ptr.value}"
+        )
         if hr_elem == 0 and elem_ptr.value:
             name = get_element_name(elem_ptr)
             ctype = get_element_control_type(elem_ptr)
             cls_name = get_element_class_name(elem_ptr)
+            automation_id = get_element_automation_id(elem_ptr)
             rect = get_element_rect(elem_ptr)
             is_pw = is_element_password(elem_ptr)
             
@@ -161,12 +265,14 @@ def get_element_at(x, y):
             return {
                 "name": name,
                 "control_type": ctype,
+                "control_type_name": CONTROL_TYPE_NAMES.get(ctype, f"Control_{ctype}"),
+                "automation_id": automation_id,
                 "class_name": cls_name,
                 "rect": rect,
                 "is_password": is_pw
             }
     except Exception as e:
-        import logging
+      
         logging.error(f"Error in get_element_at: {e}")
     finally:
         if uia_ptr.value:
@@ -192,11 +298,16 @@ def get_focused_element_info():
         elem_ptr = ctypes.c_void_p()
         # GetFocusedElement is offset 9
         hr_elem = call_com(uia_ptr, 9, proto, ctypes.byref(elem_ptr))
+        logging.info(f"ElementFromPoint HR = {hr_elem}")
+        logging.info(f"Element Pointer = {elem_ptr.value}")
         if hr_elem == 0 and elem_ptr.value:
             name = get_element_name(elem_ptr)
+            logging.info(f"ELEMENT NAME = {name}")
             ctype = get_element_control_type(elem_ptr)
             cls_name = get_element_class_name(elem_ptr)
+            automation_id = get_element_automation_id(elem_ptr)
             rect = get_element_rect(elem_ptr)
+            logging.info(f"ELEMENT RECT = {rect}")
             is_pw = is_element_password(elem_ptr)
             
             # Release element pointer
@@ -205,6 +316,8 @@ def get_focused_element_info():
             return {
                 "name": name,
                 "control_type": ctype,
+                "control_type_name": CONTROL_TYPE_NAMES.get(ctype, f"Control_{ctype}"),
+                "automation_id": automation_id,
                 "class_name": cls_name,
                 "rect": rect,
                 "is_password": is_pw
