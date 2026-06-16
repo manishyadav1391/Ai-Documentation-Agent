@@ -17,7 +17,7 @@ Follow these steps to pull, configure, and run the project locally on your machi
 
 ```bash
 # Clone the repository
-git clone https://github.com/<your-username>/<your-repo-name>.git
+git clone https://github.com/manishyadav1391/Ai-Documentation-Agent
 cd "user_manual_bot using screen recoder"
 
 # Create a virtual environment (recommended)
