@@ -141,7 +141,7 @@ def capture_screenshot(filename, click_coords=None, highlight_rect=None, step_no
             if (left_el is not None and top_el is not None and right_el is not None and bottom_el is not None and 
                 right_el > left_el and bottom_el > top_el):
                 # Red outline (width=4) and semi-transparent red fill (alpha=40 / 15% opacity)
-                draw_overlay.rectangle([left_el, top_el, right_el, bottom_el], fill=(255, 0, 0, 40), outline=(255, 0, 0, 255), width=4)
+                draw_overlay.rectangle([left_el, top_el, right_el, bottom_el],  outline=(255, 0, 0, 255), width=4)
                 drawn = True
                 
         # 6. Fallback to click coordinate dot/circle
